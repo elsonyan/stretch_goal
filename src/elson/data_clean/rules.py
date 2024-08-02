@@ -25,6 +25,10 @@ class Rule(ABC):
     def exec(self):
         raise NotImplemented
 
+class RateRule(Rule):
+
+    def exec(self):
+        pass
 
 class StringRule(Rule):
 

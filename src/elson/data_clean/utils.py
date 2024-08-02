@@ -47,6 +47,7 @@ class RuleQueue:
     def showNode(node: Node):
         print(node.rule.__dict__)
 
+    @property
     def list(self):
         if not self.head:
             return
