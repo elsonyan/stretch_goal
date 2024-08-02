@@ -1,7 +1,8 @@
 from pyspark.sql import DataFrame
 from pyspark.sql.functions import col
-from elson.data_clean.rules import Rule, StringRule, RateRule
+from elson.data_clean.rules import Rule, RateRule
 from elson.data_clean.utils import OriginRule, init_yaml_rules, RuleQueue
+from typing import Optional
 
 
 def LoadRule(rule_detail: OriginRule) -> Rule:
@@ -36,15 +37,21 @@ def SortRules(origin_rule: OriginRule, *match_rules: str) -> RuleQueue:
     return rule_queue
 
 
-def CleanDF(df: DataFrame, rule_queue: RuleQueue, columns: str = "*") -> DataFrame:
-    pass
+def CleanDF(df: DataFrame,
+            rule_queue: RuleQueue,
+            column: Optional = "*"
+            ) -> DataFrame:
+    if isinstance(column, list):
+        print("list")
+    if isinstance(column, str):
+        print("str")
 
 
 if __name__ == '__main__':
-    from pyspark.sql import SparkSession
-
-    spark = SparkSession.builder.appName("AppName").getOrCreate()
+    # from pyspark.sql import SparkSession
+    # spark = SparkSession.builder.appName("AppName").getOrCreate()
+    # rate_df = spark.createDataFrame(data=[{'name': 'Alice', 'age': 20}])
     origin_rule = init_yaml_rules(r"rules.yaml")
     rules = SortRules(origin_rule, "Rule3")
-    rate_df = spark.createDataFrame(data=[{'name': 'Alice', 'age': 20}])
-    CleanDF(df=rate_df, rule_queue=rules)
+    rate_df = None
+    CleanDF(df=rate_df, rule_queue=rules, column=[1,2])
