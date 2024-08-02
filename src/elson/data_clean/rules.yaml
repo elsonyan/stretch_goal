@@ -7,6 +7,9 @@ BaseRule2:
 BaseRule3:
   key1: e
   trans: f
+BaseRule4:
+  key1: g
+  trans: h
 
 Rule1:
   - BaseRule1
@@ -15,3 +18,8 @@ Rule1:
 Rule2:
   - Rule1
   - BaseRule3
+
+Rule3:
+  - Rule2
+  - BaseRule4
+  - Rule1

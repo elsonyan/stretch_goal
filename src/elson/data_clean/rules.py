@@ -1,5 +1,3 @@
-from dataclasses import dataclass
-from typing import Protocol
 import json
 from abc import ABC, abstractmethod
 
@@ -25,10 +23,12 @@ class Rule(ABC):
     def exec(self):
         raise NotImplemented
 
+
 class RateRule(Rule):
 
     def exec(self):
         pass
+
 
 class StringRule(Rule):
 
