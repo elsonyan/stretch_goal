@@ -12,7 +12,6 @@ from elson.utils.exceptions import ProducerError, ConsumerError
 
 kafkaConfig = get_env().kafkaConfig
 
-
 class Producer:
     def __init__(self):
         self.producer = KafkaProducer(bootstrap_servers=kafkaConfig.bootstrap_servers,

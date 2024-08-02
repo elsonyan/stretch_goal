@@ -1,4 +1,6 @@
 import yaml, os, json
+from elson.utils.exceptions import YamlNotFoundError, ParseYamlError, EnvSwitchError, EnvUtilError
+
 
 __helper__ = """
 Note:
@@ -16,66 +18,6 @@ eg: contents in '/Workspace/ETL/common_module/config/dev_config.yaml'
     |... "{ODBC Driver 17 for SQL Server}"              |
     +---------------------------------------------------+
 """
-
-
-class EnvUtilError(Exception):
-    """
-    An error occurred at the EnvUtil level.
-    created by Elson Yan
-    """
-
-    def __init__(
-            self,
-            message: str = None,
-            error_caught: str = None,
-    ):
-        """
-        Initialize a new instance of the EnvUtilError class.
-
-        Args:
-        message (str): A message that describes the error.
-        error_caught (str): The exception that causing this exception happened.
-        """
-        self.message = message
-        self.error_caught = error_caught
-
-    def __str__(self):
-        return (
-            ", ".join([
-                "EnvUtil: Failed",
-                " - Message: " + str(self.message),
-                " - error_caught: " + str(self.error_caught)
-            ])
-        )
-
-
-class ParseYamlError(EnvUtilError):
-    def __init__(
-            self,
-            message: str = None,
-            error_caught: str = None,
-    ):
-        super().__init__(message, error_caught)
-
-
-class YamlNotFoundError(EnvUtilError):
-    def __init__(
-            self,
-            message: str = None,
-            error_caught: str = None,
-    ):
-        super().__init__(message, error_caught)
-
-
-class EnvSwitchError(EnvUtilError):
-    def __init__(
-            self,
-            message: str = None,
-            error_caught: str = None,
-    ):
-        super().__init__(message, error_caught)
-
-
 class MultiLevelDictToClass(object):
     def __init__(self, *args):
         for arg in args:

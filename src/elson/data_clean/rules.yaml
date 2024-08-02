@@ -1,0 +1,17 @@
+BaseRule1:
+  key1: a
+  trans: b
+BaseRule2:
+  key1: c
+  trans: d
+BaseRule3:
+  key1: e
+  trans: f
+
+Rule1:
+  - BaseRule1
+  - BaseRule2
+
+Rule2:
+  - Rule1
+  - BaseRule3
