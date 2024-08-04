@@ -2,39 +2,50 @@ import os, yaml
 from elson.data_clean.rules import OriginRule, StringRule, BigIntRule, Rule
 from dataclasses import dataclass
 from elson.data_clean.rules import Rule
+from typing import Any
 
 
-def init_yaml_rules(yaml_path: str):
+def load_yaml_rules(yaml_path: str) -> OriginRule:
     if os.path.exists(yaml_path):
         with open(yaml_path, mode="r", encoding="UTF-8") as file:
             env_objs = yaml.load(file, Loader=yaml.FullLoader)
         return OriginRule(env_objs)
     else:
-        return FileNotFoundError(f"{yaml_path} not found")
+        raise FileNotFoundError(f"{yaml_path} not found")
 
 
 class Node(object):
     def __init__(self,
-                 next=None,
-                 rule: Rule = None):
+                 data: Any = None,
+                 next=None, ):
+        self.data: Any = data
         self.next: Node = next
-        self.rule: Rule = rule
 
 
-@dataclass
-class RuleQueue:
+class Queue:
     head: Node = None
 
     @property
-    def shift(self) -> Rule | None:
+    def shift(self) -> Any | None:
         if not self.head:
             return None
-        item = self.head.rule
+        item = self.head.data
         self.head = self.head.next
         return item
 
-    def append(self, rule: Rule):
-        node = Node(rule=rule)
+    @property
+    def size(self) -> int:
+        size = 0
+        current = self.head
+        while True:
+            if not current:
+                break
+            size += 1
+            current = current.next
+        return size
+
+    def append(self, data):
+        node = Node(data)
         if not self.head:
             self.head = node
         else:
@@ -43,23 +54,43 @@ class RuleQueue:
                 curr = curr.next
             curr.next = node
 
+    def append_list(self, data_list: list):
+        for data in data_list:
+            node = Node(data)
+            if not self.head:
+                self.head = node
+            else:
+                curr = self.head
+                while curr.next:
+                    curr = curr.next
+                curr.next = node
+
+    def append_tuple(self, data_list: tuple):
+        for data in data_list:
+            node = Node(data)
+            if not self.head:
+                self.head = node
+            else:
+                curr = self.head
+                while curr.next:
+                    curr = curr.next
+                curr.next = node
+
     @staticmethod
     def showNode(node: Node):
-        print(node.rule.__dict__)
+        print(node.data.__dict__)
 
-    @property
     def list(self):
-        if not self.head:
-            return
         current = self.head
-        self.showNode(current)
-        while current.next:
-            current = current.next
+        while True:
+            if not current:
+                break
             self.showNode(current)
+            current = current.next
 
 
 if __name__ == '__main__':
-    queue = RuleQueue()
+    queue = Queue()
     queue.append(StringRule())
     queue.append(BigIntRule())
     queue.list()
