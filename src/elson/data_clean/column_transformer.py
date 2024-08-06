@@ -55,7 +55,6 @@ class exec_plan:
         col_list = [c[0] for c in df.dtypes if c[1].lower() == self.rule.data_type.lower()]
         if self.rule.data_type.lower() == str(Plan_type.RATE):
             col_list = list(self.columns)
-        print(col_list)
         if entire_exist(col_list, list(self.columns)):
             for _col in col_list:
                 df = transform(df, self.rule, _col)
@@ -87,7 +86,6 @@ class Cleansing:
         # Rules and fields to be applied should match. Make sure each batch of fields has corresponding rules.
         if self.rule_step.size != self.column_step.size:
             raise Exception("Rule and Column plans are not matching")
-        print(self.rule_step.size , self.column_step.size)
         size = self.column_step.size
         for _ in range(size):
             rule = self.rule_step.shift
