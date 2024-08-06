@@ -1,6 +1,5 @@
 import os, yaml
 from elson.data_clean.rules import OriginRule, StringRule, BigIntRule, Rule
-from dataclasses import dataclass
 from elson.data_clean.rules import Rule
 from typing import Any
 
@@ -28,7 +27,7 @@ class Queue:
     head: Node = None
 
     @property
-    def shift(self) -> Any | None:
+    def shift(self):
         if not self.head:
             return None
         item = self.head.data
