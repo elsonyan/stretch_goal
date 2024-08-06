@@ -2,6 +2,7 @@ import os, yaml
 from elson.data_clean.rules import OriginRule, StringRule, BigIntRule, Rule
 from elson.data_clean.rules import Rule
 from typing import Any
+from pyspark.sql.functions import col
 
 
 # load yaml config as a nested class
@@ -12,6 +13,14 @@ def load_yaml_rules(yaml_path: str) -> OriginRule:
         return OriginRule(env_objs)
     else:
         raise FileNotFoundError(f"{yaml_path} not found")
+
+
+def load_cols(cols: tuple) -> [col]:
+    return [col(c) for c in cols]
+
+
+def entire_exist(driver: list, attach: list) -> bool:
+    return True
 
 
 # Node for Queue , single link

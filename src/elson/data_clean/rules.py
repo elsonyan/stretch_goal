@@ -1,9 +1,27 @@
 import json
 from abc import ABC, abstractmethod
+from pyspark.sql import DataFrame, functions as F
+from enum import Enum
+import importlib
 
 
 # this module include all rules .
 # Define multiple rules. Each field type has its own operation logic, specific functions or properties.
+
+class Plan_type(Enum):
+    RATE = "rate"
+    STRING = "string"
+    BIGINE = "bigint"
+    INT = "int"
+    BOOLEAN = "boolean"
+    DATE = "date"
+    TIMESTAMP = "timestamp"
+    CHAR = "char"
+    DOUBLE = "double"
+
+    def __str__(self) -> str:
+        return str(self.value)
+
 
 class OriginRule(object):
     def __init__(self, *args):
@@ -23,56 +41,88 @@ class Rule(ABC):
         self.name = self.__class__.__name__
 
     @abstractmethod
-    def exec(self):
+    def exec(self, df: DataFrame, col: F.col):
         raise NotImplemented
 
 
 class RateRule(Rule):
 
-    def exec(self):
-        pass
+    def exec(self, df: DataFrame, col: F.col):
+        return df.withColumn(col, col + "_c")
 
 
 class StringRule(Rule):
-    pass
+    def exec(self, df: DataFrame, col: F.col):
+        pass
 
 
 class BigIntRule(Rule):
-    def exec(self):
+    def exec(self, df: DataFrame, col: F.col):
         pass
 
 
 class IntRule(Rule):
-    def exec(self):
+    def exec(self, df: DataFrame, col: F.col):
         pass
 
 
 class BoolRule(Rule):
-    def exec(self):
+    def exec(self, df: DataFrame, col: F.col):
         pass
 
 
 class DateRule(Rule):
-    def exec(self):
+    def exec(self, df: DataFrame, col: F.col):
         pass
 
 
 class TimestampRule(Rule):
-    def exec(self):
+    def exec(self, df: DataFrame, col: F.col):
         pass
 
 
 class CharRule(Rule):
-    def exec(self):
+    def exec(self, df: DataFrame, col: F.col):
         pass
 
 
 class DoubleRule(Rule):
-    def exec(self):
+    def exec(self, df: DataFrame, col: F.col):
         pass
 
 
-class FloatRule:
-    def exec(self):
+class FloatRule(Rule):
+    def exec(self, df: DataFrame, col: F.col):
         pass
 
+
+def match_plan(plan_type: Plan_type) -> Rule.__class__:
+    # base_module = "elson.data_clean.rules"
+    # module = importlib.import_module(base_module)
+    match str(plan_type):
+        case "rate":
+            return RateRule
+        case "string":
+            return StringRule
+        case "bigint":
+            return BigIntRule
+        case "int":
+            return IntRule
+        case "boolean":
+            return BoolRule
+        case "date":
+            return DateRule
+        case "timestamp":
+            return TimestampRule
+        case "char":
+            return CharRule
+        case "double":
+            return DoubleRule
+    return RateRule
+
+
+if __name__ == '__main__':
+    plan_type = Plan_type("string")
+    print(plan_type)
+    plan = match_plan(plan_type)
+    print(plan())

@@ -1,12 +1,7 @@
 from pyspark.sql import DataFrame, functions as F
 from elson.data_clean.rules import Rule, RateRule
-from elson.data_clean.utils import OriginRule, load_yaml_rules, Queue
+from elson.data_clean.utils import OriginRule, load_yaml_rules, Queue, entire_exist, load_cols
 from dataclasses import dataclass
-
-
-# @dataclass
-# class DataFrame:
-#     data: int
 
 
 # load yaml obj as a Rule obj
@@ -50,12 +45,27 @@ class exec_plan:
     columns: tuple = None
 
     def exec(self, dataframe: DataFrame) -> DataFrame:
+        def transform(_df: DataFrame, ruls: Rule, cols: [F.col]) -> DataFrame:
+            for _col in cols:
+                _df = ruls.exec(_df, _col)
+            return _df
+
         while True:
-            shift: Rule = self.rules.shift
-            if not shift:
+            current_rule: Rule = self.rules.shift
+            if not current_rule:
                 break
-            dataframe = DataFrame(dataframe.data + 1)
-            dataframe.show()
+            # make sure rule has data_type key
+            if not hasattr(current_rule, 'data_type'):
+                raise Exception(f"Missed 'data_type' from {current_rule.name}")
+            # make sure all columns exists in Dataframe
+            df_cols = [c[0] for c in dataframe.dtypes if c[1].lower() == current_rule.data_type.lower()]
+            if entire_exist(df_cols, list(self.columns)):
+                # convert 'col1' as col('col1')
+                col_list = load_cols(self.columns)
+                for _col in col_list:
+                    dataframe = transform(dataframe, current_rule, _col)
+            else:
+                raise Exception("col not matched in DataFrame")
         return dataframe
 
 
@@ -98,8 +108,13 @@ class Cleansing:
 
 
 if __name__ == '__main__':
-    # rate_df: DataFrame = DataFrame(0)
-    rate_df = spark.createDataFrame(data=[{'name': 'Alice', 'age': 20}])
+    # rate_df = spark.createDataFrame(data=[{'name': 'Alice', 'age': 20}])
+    @dataclass
+    class DataFrame:
+        data: int
+
+
+    rate_df: DataFrame = DataFrame(0)
     cleansing = Cleansing(rate_df, r"C:\Users\elson.sc.yan\Desktop\stretch_goal\src\elson\data_clean\rules.yaml")
     cleansing.add_rule("Rule3").add_rule("BaseRule2") \
         .add_column("col1").add_column("col2") \

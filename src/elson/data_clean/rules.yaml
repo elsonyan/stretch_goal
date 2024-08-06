@@ -1,11 +1,11 @@
 BaseRule1:
-  data_type: string
+  data_type: rate
 BaseRule2:
-  data_type: int
+  data_type: rate
 BaseRule3:
-  data_type: boolean
+  data_type: rate
 BaseRule4:
-  data_type: date
+  data_type: rate
 Rule1:
   - BaseRule1
   - BaseRule2
