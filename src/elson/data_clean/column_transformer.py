@@ -40,7 +40,7 @@ def load_rules(origin_rules, *match_rules: str) -> Queue:
 
 # execution plan. Execute a plan at each step
 @dataclass
-class exec_plan:
+class Execution:
     rule: Rule = None
     columns: tuple = None
 
@@ -52,8 +52,8 @@ class exec_plan:
         if not hasattr(self.rule, 'data_type'):
             raise Exception(f"Missed 'data_type' from {self.rule.name}")
         # make sure all columns exists in Dataframe
-        col_list = [c[0] for c in df.dtypes if c[1].lower() == self.rule.data_type.lower()]
-        if self.rule.data_type.lower() == str(Plan_type.RATE):
+        col_list = [c[0] for c in df.dtypes if c[1].lower() == getattr(self.rule, "data_type").lower()]
+        if getattr(self.rule, "data_type") == str(Plan_type.RATE):
             col_list = list(self.columns)
         if entire_exist(col_list, list(self.columns)):
             for _col in col_list:
@@ -69,7 +69,7 @@ class Cleansing:
                  yaml_path: str):
         self.df: DataFrame = df
         self.origin_rules: OriginRule = load_yaml_rules(yaml_path)
-        self.exec_plan_list: Queue = Queue()
+        self.execution_plan: Queue = Queue()
         self.rule_step: Queue = Queue()
         self.column_step: Queue = Queue()
 
@@ -82,7 +82,7 @@ class Cleansing:
         self.column_step.append(columns)
         return self
 
-    def zip_rule_cols(self):
+    def _arrange_execution_plan(self):
         # Rules and fields to be applied should match. Make sure each batch of fields has corresponding rules.
         if self.rule_step.size != self.column_step.size:
             raise Exception("Rule and Column plans are not matching")
@@ -96,17 +96,21 @@ class Cleansing:
                 tmp_plan: Rule = rule_sorted.shift
                 if not tmp_plan:
                     break
-                self.exec_plan_list.append(exec_plan(tmp_plan, column))
-        print("total steps:", self.exec_plan_list.size)
+                self.execution_plan.append(Execution(tmp_plan, column))
+
+    def show_execution_plan(self):
+        self._arrange_execution_plan()
+        print("total executions:", self.execution_plan.size)
+        self.execution_plan.list()
 
     def exec(self):
-        self.zip_rule_cols()
+        self._arrange_execution_plan()
         while True:
-            plan: exec_plan = self.exec_plan_list.shift
-            if not plan:
+            execution: Execution = self.execution_plan.shift
+            if not execution:
                 break
-            print("execution plan:", plan)
-            self.df = plan.exec(self.df)
+            print("execution plan:", execution)
+            self.df = execution.exec(self.df)
         return self.df
 
 # if __name__ == '__main__':
