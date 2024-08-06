@@ -45,10 +45,8 @@ class exec_plan:
     columns: tuple = None
 
     def exec(self, dataframe: DataFrame) -> DataFrame:
-        def transform(_df: DataFrame, ruls: Rule, cols: [F.col]) -> DataFrame:
-            for _col in cols:
-                _df = ruls.exec(_df, _col)
-            return _df
+        def transform(_df: DataFrame, _rule: Rule, _col: F.col) -> DataFrame:
+            return _rule.exec(_df, _col)
 
         while True:
             current_rule: Rule = self.rules.shift
