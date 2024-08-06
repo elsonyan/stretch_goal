@@ -101,7 +101,7 @@ class Cleansing:
             if not plan:
                 break
             self.df = plan.exec(self.df)
-
+        return self
 
 if __name__ == '__main__':
     # rate_df = spark.createDataFrame(data=[{'name': 'Alice', 'age': 20}])
