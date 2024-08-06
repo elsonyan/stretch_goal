@@ -1,5 +1,5 @@
 from pyspark.sql import DataFrame, functions as F
-from elson.data_clean.rules import Rule, RateRule
+from elson.data_clean.rules import Rule, RateRule, Plan_type
 from elson.data_clean.utils import OriginRule, load_yaml_rules, Queue, entire_exist, load_cols
 from dataclasses import dataclass
 
@@ -41,28 +41,27 @@ def load_rules(origin_rules, *match_rules: str) -> Queue:
 # execution plan. Execute a plan at each step
 @dataclass
 class exec_plan:
-    rules: Queue = None
+    rule: Rule = None
     columns: tuple = None
 
-    def exec(self, dataframe: DataFrame) -> DataFrame:
-        def transform(_df: DataFrame, _rule: Rule, _col: str) -> DataFrame:
+    def exec(self, df: DataFrame) -> DataFrame:
+        def transform(_df: DataFrame, _rule: Rule, _col: [str]) -> DataFrame:
             return _rule.exec(_df, _col)
 
-        while True:
-            current_rule: Rule = self.rules.shift
-            if not current_rule:
-                break
-            # make sure rule has data_type key
-            if not hasattr(current_rule, 'data_type'):
-                raise Exception(f"Missed 'data_type' from {current_rule.name}")
-            # make sure all columns exists in Dataframe
-            col_list = [c[0] for c in dataframe.dtypes if c[1].lower() == current_rule.data_type.lower()]
-            if entire_exist(col_list, list(self.columns)):
-                for _col in col_list:
-                    dataframe = transform(dataframe, current_rule, _col)
-            else:
-                raise Exception("col not matched in DataFrame")
-        return dataframe
+        # make sure rule has data_type key
+        if not hasattr(self.rule, 'data_type'):
+            raise Exception(f"Missed 'data_type' from {self.rule.name}")
+        # make sure all columns exists in Dataframe
+        col_list = [c[0] for c in df.dtypes if c[1].lower() == self.rule.data_type.lower()]
+        if self.rule.data_type.lower() == str(Plan_type.RATE):
+            col_list = list(self.columns)
+        print(col_list)
+        if entire_exist(col_list, list(self.columns)):
+            for _col in col_list:
+                df = transform(df, self.rule, _col)
+            return df
+        else:
+            raise Exception("col not matched in DataFrame")
 
 
 class Cleansing:
@@ -76,6 +75,7 @@ class Cleansing:
         self.column_step: Queue = Queue()
 
     def add_rule(self, *rules: str):
+        ### todo rules should be a Queue
         self.rule_step.append(rules)
         return self
 
@@ -87,12 +87,20 @@ class Cleansing:
         # Rules and fields to be applied should match. Make sure each batch of fields has corresponding rules.
         if self.rule_step.size != self.column_step.size:
             raise Exception("Rule and Column plans are not matching")
+        print(self.rule_step.size , self.column_step.size)
         size = self.column_step.size
         for _ in range(size):
             rule = self.rule_step.shift
             column = self.column_step.shift
+            # plan quene , for each 'add_column' step
             rule_sorted = load_rules(self.origin_rules, *rule)
-            self.exec_plan_list.append(exec_plan(rule_sorted, column))
+            while True:
+                tmp_plan: Rule = rule_sorted.shift
+                if not tmp_plan:
+                    break
+                self.exec_plan_list.append(exec_plan(tmp_plan, column))
+        print("total steps:",self.exec_plan_list.size)
+        self.exec_plan_list.list()
 
     def exec(self):
         self.zip_rule_cols()
@@ -100,18 +108,19 @@ class Cleansing:
             plan: exec_plan = self.exec_plan_list.shift
             if not plan:
                 break
+            print("plan:",plan)
             self.df = plan.exec(self.df)
-        return self
+        return self.df
 
-if __name__ == '__main__':
-    # rate_df = spark.createDataFrame(data=[{'name': 'Alice', 'age': 20}])
-    @dataclass
-    class DataFrame:
-        data: int
+# if __name__ == '__main__':
+#     # rate_df = spark.createDataFrame(data=[{'name': 'Alice', 'age': 20}])
+#     @dataclass
+#     class DataFrame:
+#         data: int
 
 
-    rate_df: DataFrame = DataFrame(0)
-    cleansing = Cleansing(rate_df, r"C:\Users\elson.sc.yan\Desktop\stretch_goal\src\elson\data_clean\rules.yaml")
-    cleansing.add_rule("Rule3").add_rule("BaseRule2") \
-        .add_column("col1").add_column("col2") \
-        .exec()
+#     rate_df: DataFrame = DataFrame(0)
+#     cleansing = Cleansing(rate_df, r"C:\Users\elson.sc.yan\Desktop\stretch_goal\src\elson\data_clean\rules.yaml")
+#     cleansing.add_rule("Rule3").add_rule("BaseRule2") \
+#         .add_column("col1").add_column("col2") \
+#         .exec()

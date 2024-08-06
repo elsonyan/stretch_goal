@@ -47,7 +47,7 @@ class Rule(ABC):
 
 class RateRule(Rule):
 
-    def exec(self, df: DataFrame, col: str):
+    def exec(self, df: DataFrame, col: str) -> DataFrame:
         return df.withColumn(col, F.concat(F.col(col), F.lit(self.name)))
 
 
@@ -101,7 +101,7 @@ def match_plan(plan_type: Plan_type) -> Rule.__class__:
     # module = importlib.import_module(base_module)
     s = str(plan_type)
     result = RateRule
-    if s == "rate":
+    if s == "string":
         result = RateRule
     elif s == "string":
         result = StringRule
@@ -124,6 +124,7 @@ def match_plan(plan_type: Plan_type) -> Rule.__class__:
 
 
 if __name__ == '__main__':
+    str(Plan_type.RATE)
     plan_type = Plan_type("string")
     print(plan_type)
     plan = match_plan(plan_type)
