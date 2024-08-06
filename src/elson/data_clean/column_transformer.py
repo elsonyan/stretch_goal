@@ -45,7 +45,7 @@ class exec_plan:
     columns: tuple = None
 
     def exec(self, dataframe: DataFrame) -> DataFrame:
-        def transform(_df: DataFrame, _rule: Rule, _col: F.col) -> DataFrame:
+        def transform(_df: DataFrame, _rule: Rule, _col: str) -> DataFrame:
             return _rule.exec(_df, _col)
 
         while True:
@@ -56,10 +56,8 @@ class exec_plan:
             if not hasattr(current_rule, 'data_type'):
                 raise Exception(f"Missed 'data_type' from {current_rule.name}")
             # make sure all columns exists in Dataframe
-            df_cols = [c[0] for c in dataframe.dtypes if c[1].lower() == current_rule.data_type.lower()]
-            if entire_exist(df_cols, list(self.columns)):
-                # convert 'col1' as col('col1')
-                col_list = load_cols(self.columns)
+            col_list = [c[0] for c in dataframe.dtypes if c[1].lower() == current_rule.data_type.lower()]
+            if entire_exist(col_list, list(self.columns)):
                 for _col in col_list:
                     dataframe = transform(dataframe, current_rule, _col)
             else:
