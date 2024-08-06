@@ -38,7 +38,7 @@ class OriginRule(object):
 
 class Rule(ABC):
     def __init__(self):
-        self.name = self.__class__.__name__
+        self.name: str = self.__class__.__name__
 
     @abstractmethod
     def exec(self, df: DataFrame, col: str):
@@ -48,7 +48,7 @@ class Rule(ABC):
 class RateRule(Rule):
 
     def exec(self, df: DataFrame, col: str):
-        return df.withColumn(col, F.col(col) + self.name)
+        return df.withColumn(col, F.concat(F.col(col), self.name))
 
 
 class StringRule(Rule):
