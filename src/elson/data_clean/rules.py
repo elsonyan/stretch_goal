@@ -99,26 +99,28 @@ class FloatRule(Rule):
 def match_plan(plan_type: Plan_type) -> Rule.__class__:
     # base_module = "elson.data_clean.rules"
     # module = importlib.import_module(base_module)
-    match str(plan_type):
-        case "rate":
-            return RateRule
-        case "string":
-            return StringRule
-        case "bigint":
-            return BigIntRule
-        case "int":
-            return IntRule
-        case "boolean":
-            return BoolRule
-        case "date":
-            return DateRule
-        case "timestamp":
-            return TimestampRule
-        case "char":
-            return CharRule
-        case "double":
-            return DoubleRule
-    return RateRule
+    s = str(plan_type)
+    result = RateRule
+    if s == "rate":
+        result = RateRule
+    elif s == "string":
+        result = StringRule
+    elif s == "bigint":
+        result = BigIntRule
+    elif s == "int":
+        result = IntRule
+    elif s == "boolean":
+        result = BoolRule
+    elif s == "date":
+        result = DateRule
+    elif s == "timestamp":
+        result = TimestampRule
+    elif s == "char":
+        result = CharRule
+    elif s == "double":
+        result = DoubleRule
+
+    return result
 
 
 if __name__ == '__main__':
