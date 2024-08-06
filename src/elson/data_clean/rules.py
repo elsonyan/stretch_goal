@@ -52,46 +52,55 @@ class RateRule(Rule):
 
 
 class StringRule(Rule):
+
     def exec(self, df: DataFrame, col: str):
         pass
 
 
 class BigIntRule(Rule):
+
     def exec(self, df: DataFrame, col: str):
         pass
 
 
 class IntRule(Rule):
+
     def exec(self, df: DataFrame, col: str):
         pass
 
 
 class BoolRule(Rule):
+
     def exec(self, df: DataFrame, col: str):
         pass
 
 
 class DateRule(Rule):
+
     def exec(self, df: DataFrame, col: str):
         pass
 
 
 class TimestampRule(Rule):
+
     def exec(self, df: DataFrame, col: str):
         pass
 
 
 class CharRule(Rule):
+
     def exec(self, df: DataFrame, col: str):
         pass
 
 
 class DoubleRule(Rule):
+
     def exec(self, df: DataFrame, col: str):
         pass
 
 
 class FloatRule(Rule):
+
     def exec(self, df: DataFrame, col: str):
         pass
 

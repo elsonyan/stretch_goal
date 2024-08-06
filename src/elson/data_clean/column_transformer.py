@@ -48,7 +48,7 @@ class exec_plan:
         def transform(_df: DataFrame, _rule: Rule, _col: [str]) -> DataFrame:
             return _rule.exec(_df, _col)
 
-        # make sure rule has data_type key
+        # make sure rule has data_type attribute
         if not hasattr(self.rule, 'data_type'):
             raise Exception(f"Missed 'data_type' from {self.rule.name}")
         # make sure all columns exists in Dataframe
@@ -97,7 +97,7 @@ class Cleansing:
                 if not tmp_plan:
                     break
                 self.exec_plan_list.append(exec_plan(tmp_plan, column))
-        print("total steps:",self.exec_plan_list.size)
+        print("total steps:", self.exec_plan_list.size)
 
     def exec(self):
         self.zip_rule_cols()
@@ -105,7 +105,7 @@ class Cleansing:
             plan: exec_plan = self.exec_plan_list.shift
             if not plan:
                 break
-            print("execution plan:",plan)
+            print("execution plan:", plan)
             self.df = plan.exec(self.df)
         return self.df
 
