@@ -98,7 +98,6 @@ class Cleansing:
                     break
                 self.exec_plan_list.append(exec_plan(tmp_plan, column))
         print("total steps:",self.exec_plan_list.size)
-        self.exec_plan_list.list()
 
     def exec(self):
         self.zip_rule_cols()
@@ -106,7 +105,7 @@ class Cleansing:
             plan: exec_plan = self.exec_plan_list.shift
             if not plan:
                 break
-            print("executing plan:",plan.name)
+            print("executing plan:",plan.rule.name)
             self.df = plan.exec(self.df)
         return self.df
 
