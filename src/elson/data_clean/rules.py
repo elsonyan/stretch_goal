@@ -48,7 +48,7 @@ class Rule(ABC):
 class RateRule(Rule):
 
     def exec(self, df: DataFrame, col: F.col):
-        return df.withColumn(col, col + "_c")
+        return df.withColumn(col, col + self.name)
 
 
 class StringRule(Rule):
