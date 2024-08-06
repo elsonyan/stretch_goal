@@ -105,7 +105,7 @@ class Cleansing:
             plan: exec_plan = self.exec_plan_list.shift
             if not plan:
                 break
-            print("executing plan:",plan)
+            print("execution plan:",plan)
             self.df = plan.exec(self.df)
         return self.df
 
