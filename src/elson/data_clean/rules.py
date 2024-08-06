@@ -2,6 +2,9 @@ import json
 from abc import ABC, abstractmethod
 
 
+# this module include all rules .
+# Define multiple rules. Each field type has its own operation logic, specific functions or properties.
+
 class OriginRule(object):
     def __init__(self, *args):
         for arg in args:
@@ -31,9 +34,7 @@ class RateRule(Rule):
 
 
 class StringRule(Rule):
-
-    def exec(self):
-        pass
+    pass
 
 
 class BigIntRule(Rule):
@@ -74,3 +75,4 @@ class DoubleRule(Rule):
 class FloatRule:
     def exec(self):
         pass
+

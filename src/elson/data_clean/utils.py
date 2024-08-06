@@ -5,6 +5,7 @@ from elson.data_clean.rules import Rule
 from typing import Any
 
 
+# load yaml config as a nested class
 def load_yaml_rules(yaml_path: str) -> OriginRule:
     if os.path.exists(yaml_path):
         with open(yaml_path, mode="r", encoding="UTF-8") as file:
@@ -14,6 +15,7 @@ def load_yaml_rules(yaml_path: str) -> OriginRule:
         raise FileNotFoundError(f"{yaml_path} not found")
 
 
+# Node for Queue , single link
 class Node(object):
     def __init__(self,
                  data: Any = None,

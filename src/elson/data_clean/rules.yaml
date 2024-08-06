@@ -1,24 +1,17 @@
 BaseRule1:
-  key1: a
-  trans: b
+  data_type: string
 BaseRule2:
-  key1: c
-  trans: d
+  data_type: int
 BaseRule3:
-  key1: e
-  trans: f
+  data_type: boolean
 BaseRule4:
-  key1: g
-  trans: h
-
+  data_type: date
 Rule1:
   - BaseRule1
   - BaseRule2
-
 Rule2:
   - Rule1
   - BaseRule3
-
 Rule3:
   - Rule2
   - BaseRule4

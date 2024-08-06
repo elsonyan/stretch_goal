@@ -1,15 +1,15 @@
-# from pyspark.sql import DataFrame, functions as F
+from pyspark.sql import DataFrame, functions as F
 from elson.data_clean.rules import Rule, RateRule
 from elson.data_clean.utils import OriginRule, load_yaml_rules, Queue
 from dataclasses import dataclass
 
 
-@dataclass
-class DataFrame:
-    data: int
+# @dataclass
+# class DataFrame:
+#     data: int
 
 
-# 把解析出来的加载成Rule()
+# load yaml obj as a Rule obj
 def load_rule(rule_detail: OriginRule) -> Rule:
     _rule = RateRule()
     for prop in dir(rule_detail):
@@ -43,6 +43,7 @@ def load_rules(origin_rules, *match_rules: str) -> Queue:
     return rule_queue
 
 
+# execution plan. Execute a plan at each step
 @dataclass
 class exec_plan:
     rules: Queue = None
@@ -54,7 +55,7 @@ class exec_plan:
             if not shift:
                 break
             dataframe = DataFrame(dataframe.data + 1)
-            print(dataframe, shift.__dict__, self.columns)
+            dataframe.show()
         return dataframe
 
 
@@ -68,15 +69,16 @@ class Cleansing:
         self.rule_step: Queue = Queue()
         self.column_step: Queue = Queue()
 
-    def rule(self, *rules: str):
+    def add_rule(self, *rules: str):
         self.rule_step.append(rules)
         return self
 
-    def column(self, *columns: str):
+    def add_column(self, *columns: str):
         self.column_step.append(columns)
         return self
 
     def zip_rule_cols(self):
+        # Rules and fields to be applied should match. Make sure each batch of fields has corresponding rules.
         if self.rule_step.size != self.column_step.size:
             raise Exception("Rule and Column plans are not matching")
         size = self.column_step.size
@@ -96,9 +98,9 @@ class Cleansing:
 
 
 if __name__ == '__main__':
-    df: DataFrame = DataFrame(0)
-    # rate_df = spark.createDataFrame(data=[{'name': 'Alice', 'age': 20}])
-    cleansing = Cleansing(df, r"C:\Users\93134\Desktop\stretch_goal\src\elson\data_clean\rules.yaml")
-    cleansing.rule("Rule3").rule("BaseRule2") \
-        .column("col1").column("col2") \
+    # rate_df: DataFrame = DataFrame(0)
+    rate_df = spark.createDataFrame(data=[{'name': 'Alice', 'age': 20}])
+    cleansing = Cleansing(rate_df, r"C:\Users\elson.sc.yan\Desktop\stretch_goal\src\elson\data_clean\rules.yaml")
+    cleansing.add_rule("Rule3").add_rule("BaseRule2") \
+        .add_column("col1").add_column("col2") \
         .exec()
