@@ -98,10 +98,10 @@ class Cleansing:
                     raise Exception(f"Missed 'data_type' from {tmp_plan}")
                 rule:Rule = load_rule(tmp_plan)
                 self.execution_plan.append(Execution(rule, column))
+        print("total executions:", self.execution_plan.size)
 
     def show_execution_plan(self):
         self._arrange_execution_plan()
-        print("total executions:", self.execution_plan.size)
         self.execution_plan.list()
 
     def exec(self):
