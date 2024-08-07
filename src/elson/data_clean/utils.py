@@ -31,9 +31,9 @@ def load_yaml_rules(yaml_path: str) -> OriginRule:
 def load_cols(cols: tuple) -> [col]:
     return [col(c) for c in cols]
 
-
 def entire_exist(driver: list, attach: list) -> bool:
-    return True
+    intersect = set(driver) & set([att_col.lower() for att_col in attach])
+    return True if len(intersect) == len(set(attach)) else False
 
 
 # Node for Queue , single link
