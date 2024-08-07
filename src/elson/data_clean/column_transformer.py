@@ -15,7 +15,7 @@ def load_rule(rule_detail: OriginRule) -> Rule:
 
 
 #
-def load_rules(origin_rules, *match_rules: str) -> Queue:
+def parse_rules(origin_rules, *match_rules: str) -> Queue:
     rule_queue = Queue()
 
     # 按 先后顺序，将rule排列在队列中。实现优先级
@@ -91,7 +91,7 @@ class Cleansing:
             rule = self.rule_step.shift
             column = self.column_step.shift
             # plan quene , for each 'add_column' step
-            rule_sorted = load_rules(self.origin_rules, *rule)
+            rule_sorted = parse_rules(self.origin_rules, *rule)
             while True:
                 tmp_plan: Rule = rule_sorted.shift
                 if not tmp_plan:
