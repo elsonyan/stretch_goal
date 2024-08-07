@@ -1,4 +1,4 @@
-from elson.data_clean.rules._rule import Rule
+from elson.data_clean.rules import Rule
 from pyspark.sql import DataFrame
 
 
