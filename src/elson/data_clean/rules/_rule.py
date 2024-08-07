@@ -2,6 +2,7 @@ import json
 from abc import ABC, abstractmethod
 from pyspark.sql import DataFrame, functions as F
 from enum import Enum
+from importlib import import_module
 
 from elson.data_clean.rules import BigInt_rule, Bool_rule, Char_rule, Date_rule, Double_rule, Float_rule, Int_rule, String_rule, Timestamp_rule
 
@@ -53,29 +54,29 @@ class Rate_rule(Rule):
 
 
 def match_plan(plan_type: Plan_type) -> Rule.__class__:
-    # base_module = "elson.data_clean.rules"
-    # module = importlib.import_module(base_module)
+    base_module = "elson.data_clean.rules"
+    module = import_module(base_module)
     s = str(plan_type)
-    result = Rate_rule
+    result = module.Rate_rule
     if s == "rate":
-        result = Rate_rule
+        result = module.Rate_rule
     elif s == "string":
-        result = String_rule
+        result = module.String_rule
     elif s == "bigint":
-        result = BigInt_rule
+        result = module.BigInt_rule
     elif s == "int":
-        result = Int_rule
+        result = module.Int_rule
     elif s == "boolean":
-        result = Bool_rule
+        result = module.Bool_rule
     elif s == "date":
-        result = Date_rule
+        result = module.Date_rule
     elif s == "timestamp":
-        result = Timestamp_rule
+        result = module.Timestamp_rule
     elif s == "char":
-        result = Char_rule
+        result = module.Char_rule
     elif s == "double":
-        result = Double_rule
+        result = module.Double_rule
     elif s == "float":
-        result = Float_rule
+        result = module.Float_rule
 
     return result
