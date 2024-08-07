@@ -11,11 +11,11 @@ def load_rule(rule_detail: OriginRule) -> Rule:
         if not prop.startswith('__'):  # except __ func
             attr = getattr(rule_detail, prop)
             setattr(_rule, prop, attr)
-    return _rule
+    return _rule()
 
 
 #
-def parse_rules(origin_rules, *match_rules: str) -> Queue:
+def parse_rules(origin_rules: object, *match_rules: str) -> Queue:
     rule_queue = Queue()
 
     # 按 先后顺序，将rule排列在队列中。实现优先级
