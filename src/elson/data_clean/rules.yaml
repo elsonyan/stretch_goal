@@ -5,7 +5,7 @@ BaseRule2:
 BaseRule3:
   data_type: rate
 BaseRule4:
-  data_type: rate
+  data_type: string
 Rule1:
   - BaseRule1
   - BaseRule2

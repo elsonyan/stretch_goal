@@ -45,7 +45,7 @@ class Execution:
     columns: tuple = None
 
     def exec(self, df: DataFrame) -> DataFrame:
-        def transform(_df: DataFrame, _rule: Rule, _col: [str]) -> DataFrame:
+        def transform(_df: DataFrame, _rule: Rule, _col: str) -> DataFrame:
             return _rule.exec(_df, _col)
 
         # make sure all columns exists in Dataframe
