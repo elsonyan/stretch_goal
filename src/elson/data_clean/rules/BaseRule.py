@@ -23,9 +23,6 @@ class Plan_type(Enum):
         return str(self.value)
 
 
-
-
-
 class Rule(ABC):
     def __init__(self):
         self.name: str = self.__class__.__name__
@@ -38,4 +35,4 @@ class Rule(ABC):
 class Rate_rule(Rule):
 
     def exec(self, df: DataFrame, col: str) -> DataFrame:
-        return df.withColumn(col, F.concat(F.cast(F.col(col), "string"), F.lit(self.name)))
+        return df.withColumn(col, F.concat(F.col(col).cast("string"), F.lit(self.name)))
