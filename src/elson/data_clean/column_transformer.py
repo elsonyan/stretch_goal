@@ -6,6 +6,11 @@ from dataclasses import dataclass
 
 # load yaml obj as a Rule obj
 def load_rule(rule_detail: OriginRule) -> Rule:
+    """
+
+    :param rule_detail: base rule in yaml (not nested)
+    :return: Rule class which extended from 'Rule'
+    """
     _rule = match_rule(getattr(rule_detail, "data_type"))
     for prop in dir(rule_detail):
         if not prop.startswith('__'):  # except __ func
@@ -14,15 +19,19 @@ def load_rule(rule_detail: OriginRule) -> Rule:
     return _rule()
 
 
-#
 def parse_rules(origin_rules: object, *match_rules: str) -> Queue:
+    """
+    This method is used to resolve nested methods and implement method priorities
+    :param origin_rules: The base rule in yaml file ,convert as a origin_rules object
+    :param match_rules: The rules added
+    :return: Queue include base rule in yaml (not nested)
+    """
     rule_queue = Queue()
 
     # 按 先后顺序，将rule排列在队列中。实现优先级
     def extract_rule(_rule):
         # get rules by
         attr = getattr(origin_rules, _rule)
-        # if get a list , flatten list to get the truly clean operation
         if isinstance(attr, list):
             for r in attr:
                 extract_rule(r)
@@ -38,9 +47,12 @@ def parse_rules(origin_rules: object, *match_rules: str) -> Queue:
     return rule_queue
 
 
-# execution plan. Execute a plan at each step
 @dataclass
 class Execution:
+    """
+    execution: include Rule class which extended from 'Rule' and columns provide
+    func exec: main process logic
+    """
     rule: Rule = None
     columns: tuple = None
 
@@ -71,15 +83,25 @@ class Cleansing:
         self.column_step: Queue = Queue()
 
     def add_rule(self, *rules: str):
-        ### todo rules should be a Queue
+        """
+        :param rules: load rules
+        :return: self (instance)
+        """
         self.rule_step.append(rules)
         return self
 
     def add_column(self, *columns: str):
+        """
+        :param columns:
+        :return: self (instance)
+        """
         self.column_step.append(columns)
         return self
 
     def _arrange_execution_plan(self):
+        """
+        arrange the all plans in self.rule_step and self.column_step to self.execution_plan
+        """
         # Rules and fields to be applied should match. Make sure each batch of fields has corresponding rules.
         if self.rule_step.size != self.column_step.size:
             raise Exception("Rule and Column plans are not matching")
