@@ -1,6 +1,6 @@
 from pyspark.sql import DataFrame
-from elson.data_clean.rules import Rule, Rate_rule, Plan_type
-from elson.data_clean.utils import OriginRule, load_yaml_rules, Queue, entire_exist, load_cols
+from elson.data_clean.rules import Rule, Plan_type
+from elson.data_clean.utils import OriginRule, load_yaml_rules, Queue, entire_exist
 from dataclasses import dataclass
 
 

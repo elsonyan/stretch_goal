@@ -1,8 +1,21 @@
+import json
 import os, yaml
-from elson.data_clean.rules._rule import OriginRule, StringRule, BigIntRule, Rule
-from elson.data_clean.rules._rule import Rule
+from elson.data_clean.rules import String_rule, BigInt_rule
 from typing import Any
 from pyspark.sql.functions import col
+
+
+class OriginRule(object):
+    def __init__(self, *args):
+        for arg in args:
+            for k, v in arg.items():
+                if isinstance(v, dict):
+                    self.__dict__[k] = OriginRule(v)
+                else:
+                    self.__dict__[k] = v
+
+    def __str__(self) -> str:
+        return json.dumps(self, default=lambda o: o.__dict__, indent=4)
 
 
 # load yaml config as a nested class
@@ -101,6 +114,6 @@ class Queue:
 
 if __name__ == '__main__':
     queue = Queue()
-    queue.append(StringRule())
-    queue.append(BigIntRule())
+    queue.append(String_rule())
+    queue.append(BigInt_rule())
     queue.list()
