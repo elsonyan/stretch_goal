@@ -11,7 +11,7 @@ from elson.data_clean.rules.StringRule import String_rule
 from elson.data_clean.rules.TimestampRule import Timestamp_rule
 
 
-def match_plan(plan_type: Plan_type) -> Rule.__class__:
+def match_rule(plan_type: Plan_type) -> Rule.__class__:
     # base_module = "elson.data_clean.rules"
     # module = import_module(base_module)
     s = str(plan_type)

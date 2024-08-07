@@ -1,12 +1,12 @@
 from pyspark.sql import DataFrame
-from elson.data_clean.rules import Rule, Plan_type
+from elson.data_clean.rules import Rule, Plan_type,match_rule
 from elson.data_clean.utils import OriginRule, load_yaml_rules, Queue, entire_exist
 from dataclasses import dataclass
 
 
 # load yaml obj as a Rule obj
 def load_rule(rule_detail: OriginRule) -> Rule:
-    _rule = Rule()
+    _rule = match_rule(getattr(rule_detail, "data_type"))
     for prop in dir(rule_detail):
         if not prop.startswith('__'):  # except __ func
             attr = getattr(rule_detail, prop)
@@ -29,7 +29,7 @@ def parse_rules(origin_rules, *match_rules: str) -> Queue:
         else:
             # if get a class , must be clean operation
             if attr.__class__.__name__ == OriginRule.__name__:
-                rule_queue.append(load_rule(attr))
+                rule_queue.append(attr)
             else:
                 extract_rule(attr)
 
@@ -48,9 +48,6 @@ class Execution:
         def transform(_df: DataFrame, _rule: Rule, _col: [str]) -> DataFrame:
             return _rule.exec(_df, _col)
 
-        # make sure rules has data_type attribute
-        if not hasattr(self.rule, 'data_type'):
-            raise Exception(f"Missed 'data_type' from {self.rule.name}")
         # make sure all columns exists in Dataframe
         col_list = [c[0] for c in df.dtypes if c[1].lower() == getattr(self.rule, "data_type").lower()]
         if getattr(self.rule, "data_type") == str(Plan_type.RATE):
@@ -93,10 +90,14 @@ class Cleansing:
             # plan quene , for each 'add_column' step
             rule_sorted = parse_rules(self.origin_rules, *rule)
             while True:
-                tmp_plan: Rule = rule_sorted.shift
+                tmp_plan: OriginRule = rule_sorted.shift
                 if not tmp_plan:
                     break
-                self.execution_plan.append(Execution(tmp_plan, column))
+                # make sure rules has data_type attribute
+                if not hasattr(tmp_plan, 'data_type'):
+                    raise Exception(f"Missed 'data_type' from {tmp_plan}")
+                rule:Rule = load_rule(tmp_plan)
+                self.execution_plan.append(Execution(rule, column))
 
     def show_execution_plan(self):
         self._arrange_execution_plan()
