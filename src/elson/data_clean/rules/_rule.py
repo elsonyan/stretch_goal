@@ -2,7 +2,8 @@ import json
 from abc import ABC, abstractmethod
 from pyspark.sql import DataFrame, functions as F
 from enum import Enum
-import importlib
+
+from elson.data_clean.rules import BigInt_rule, Bool_rule, Char_rule, Date_rule, Double_rule, Float_rule, Int_rule, String_rule, Timestamp_rule
 
 
 # this module include all rules .
@@ -45,96 +46,36 @@ class Rule(ABC):
         raise NotImplemented
 
 
-class RateRule(Rule):
+class Rate_rule(Rule):
 
     def exec(self, df: DataFrame, col: str) -> DataFrame:
-        return df.withColumn(col, F.concat(F.col(col), F.lit(self.name)))
-
-
-class StringRule(Rule):
-
-    def exec(self, df: DataFrame, col: str):
-        pass
-
-
-class BigIntRule(Rule):
-
-    def exec(self, df: DataFrame, col: str):
-        pass
-
-
-class IntRule(Rule):
-
-    def exec(self, df: DataFrame, col: str):
-        pass
-
-
-class BoolRule(Rule):
-
-    def exec(self, df: DataFrame, col: str):
-        pass
-
-
-class DateRule(Rule):
-
-    def exec(self, df: DataFrame, col: str):
-        pass
-
-
-class TimestampRule(Rule):
-
-    def exec(self, df: DataFrame, col: str):
-        pass
-
-
-class CharRule(Rule):
-
-    def exec(self, df: DataFrame, col: str):
-        pass
-
-
-class DoubleRule(Rule):
-
-    def exec(self, df: DataFrame, col: str):
-        pass
-
-
-class FloatRule(Rule):
-
-    def exec(self, df: DataFrame, col: str):
-        pass
+        return df.withColumn(col, F.concat(F.cast(F.col(col), "string"), F.lit(self.name)))
 
 
 def match_plan(plan_type: Plan_type) -> Rule.__class__:
     # base_module = "elson.data_clean.rules"
     # module = importlib.import_module(base_module)
     s = str(plan_type)
-    result = RateRule
-    if s == "string":
-        result = RateRule
+    result = Rate_rule
+    if s == "rate":
+        result = Rate_rule
     elif s == "string":
-        result = StringRule
+        result = String_rule
     elif s == "bigint":
-        result = BigIntRule
+        result = BigInt_rule
     elif s == "int":
-        result = IntRule
+        result = Int_rule
     elif s == "boolean":
-        result = BoolRule
+        result = Bool_rule
     elif s == "date":
-        result = DateRule
+        result = Date_rule
     elif s == "timestamp":
-        result = TimestampRule
+        result = Timestamp_rule
     elif s == "char":
-        result = CharRule
+        result = Char_rule
     elif s == "double":
-        result = DoubleRule
+        result = Double_rule
+    elif s == "float":
+        result = Float_rule
 
     return result
-
-
-if __name__ == '__main__':
-    str(Plan_type.RATE)
-    plan_type = Plan_type("string")
-    print(plan_type)
-    plan = match_plan(plan_type)
-    print(plan())

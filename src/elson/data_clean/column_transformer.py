@@ -1,12 +1,12 @@
-from pyspark.sql import DataFrame, functions as F
-from elson.data_clean.rules import Rule, RateRule, Plan_type
+from pyspark.sql import DataFrame
+from elson.data_clean.rules import Rule, Rate_rule, Plan_type
 from elson.data_clean.utils import OriginRule, load_yaml_rules, Queue, entire_exist, load_cols
 from dataclasses import dataclass
 
 
 # load yaml obj as a Rule obj
 def load_rule(rule_detail: OriginRule) -> Rule:
-    _rule = RateRule()
+    _rule = Rule()
     for prop in dir(rule_detail):
         if not prop.startswith('__'):  # except __ func
             attr = getattr(rule_detail, prop)
@@ -20,7 +20,7 @@ def load_rules(origin_rules, *match_rules: str) -> Queue:
 
     # 按 先后顺序，将rule排列在队列中。实现优先级
     def extract_rule(_rule):
-        # get rule by
+        # get rules by
         attr = getattr(origin_rules, _rule)
         # if get a list , flatten list to get the truly clean operation
         if isinstance(attr, list):
@@ -48,7 +48,7 @@ class Execution:
         def transform(_df: DataFrame, _rule: Rule, _col: [str]) -> DataFrame:
             return _rule.exec(_df, _col)
 
-        # make sure rule has data_type attribute
+        # make sure rules has data_type attribute
         if not hasattr(self.rule, 'data_type'):
             raise Exception(f"Missed 'data_type' from {self.rule.name}")
         # make sure all columns exists in Dataframe
@@ -118,7 +118,6 @@ class Cleansing:
 #     @dataclass
 #     class DataFrame:
 #         data: int
-
 
 #     rate_df: DataFrame = DataFrame(0)
 #     cleansing = Cleansing(rate_df, r"C:\Users\elson.sc.yan\Desktop\stretch_goal\src\elson\data_clean\rules.yaml")

@@ -1,6 +1,6 @@
 import os, yaml
-from elson.data_clean.rules import OriginRule, StringRule, BigIntRule, Rule
-from elson.data_clean.rules import Rule
+from elson.data_clean.rules._rule import OriginRule, StringRule, BigIntRule, Rule
+from elson.data_clean.rules._rule import Rule
 from typing import Any
 from pyspark.sql.functions import col
 
