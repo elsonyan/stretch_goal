@@ -1,9 +1,8 @@
 import yaml, os, json
 from elson.utils.exceptions import YamlNotFoundError, ParseYamlError, EnvSwitchError, EnvUtilError
 
-
 __helper__ = """
-Note:
+Note: transplant from etl_framework.lib.config_helper()
     you can get you you env configration by using this util lib
 eg: contents in '/Workspace/ETL/common_module/config/dev_config.yaml'
     ETLADLDBServer:
@@ -18,6 +17,8 @@ eg: contents in '/Workspace/ETL/common_module/config/dev_config.yaml'
     |... "{ODBC Driver 17 for SQL Server}"              |
     +---------------------------------------------------+
 """
+
+
 class MultiLevelDictToClass(object):
     def __init__(self, *args):
         for arg in args:
@@ -31,10 +32,11 @@ class MultiLevelDictToClass(object):
         return json.dumps(self, default=lambda o: o.__dict__, indent=4)
 
 
-def get_config_yaml():
+def get_config_yaml(config_path=None):
     env = os.getenv("ENV", default="DEV")
-    config_path = f"/Workspace/ETL/common_module/config/{env.lower()}_config.yaml"
-    if env.lower() in ["dev", "sat", "prod", "debug"]:
+    if env.lower() in ["dev", "sat", "prod", "debug"] or config_path:
+        if not config_path:
+            config_path = f"/Workspace/ETL/common_module/config/{env.lower()}_config.yaml"
         if not os.path.exists(config_path):
             return YamlNotFoundError(message=f"{config_path} not found",
                                      error_caught="this is a message from func get_config_yaml()", )
@@ -46,17 +48,13 @@ def get_config_yaml():
             return ParseYamlError(message=f"Error raised when parsing {config_path}",
                                   error_caught=e, )
     else:
-        return EnvSwitchError(message=f"ENV in os should be one of them: ('dev', 'sat', 'prod', 'debug') current: {env}",
-                              error_caught="this is a message from func get_config_yaml()")
+        return EnvSwitchError(message=f"ENV in os should be one of them: ('dev', 'sat', 'prod', 'debug') or provide 'config_path'.\ncurrent: env: {env}, config_path : {config_path}""",
+                              error_caught="this is a message from func get_config_yaml()"
+                              )
 
 
-def get_env():
-    env_objs = get_config_yaml()
+def get_env(config_path=None):
+    env_objs = get_config_yaml(config_path)
     if issubclass(type(env_objs), EnvUtilError):
         return env_objs
     return MultiLevelDictToClass(env_objs)
-
-# if __name__ == '__main__':
-#     env_objs = get_config_yaml()
-#     info = get_env()
-#     print(str(info))

@@ -1,16 +1,15 @@
 import json
 import os, yaml
-from elson.data_clean.rules import String_rule, BigInt_rule
 from typing import Any
 from pyspark.sql.functions import col
 
 
-class OriginRule(object):
+class Origin_Rule(object):
     def __init__(self, *args):
         for arg in args:
             for k, v in arg.items():
                 if isinstance(v, dict):
-                    self.__dict__[k] = OriginRule(v)
+                    self.__dict__[k] = Origin_Rule(v)
                 else:
                     self.__dict__[k] = v
 
@@ -19,17 +18,18 @@ class OriginRule(object):
 
 
 # load yaml config as a nested class
-def load_yaml_rules(yaml_path: str) -> OriginRule:
+def load_yaml_rules(yaml_path: str) -> Origin_Rule:
     if os.path.exists(yaml_path):
         with open(yaml_path, mode="r", encoding="UTF-8") as file:
             env_objs = yaml.load(file, Loader=yaml.FullLoader)
-        return OriginRule(env_objs)
+        return Origin_Rule(env_objs)
     else:
         raise FileNotFoundError(f"{yaml_path} not found")
 
 
 def load_cols(cols: tuple) -> [col]:
     return [col(c) for c in cols]
+
 
 def entire_exist(driver: list, attach: list) -> bool:
     intersect = set(driver) & set([att_col.lower() for att_col in attach])
@@ -110,10 +110,3 @@ class Queue:
                 break
             self.showNode(current)
             current = current.next
-
-
-if __name__ == '__main__':
-    queue = Queue()
-    queue.append(String_rule())
-    queue.append(BigInt_rule())
-    queue.list()

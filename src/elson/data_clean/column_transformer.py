@@ -1,11 +1,11 @@
 from pyspark.sql import DataFrame
-from elson.data_clean.rules import Rule, Plan_type,match_rule
-from elson.data_clean.utils import OriginRule, load_yaml_rules, Queue, entire_exist
+from elson.data_clean.rules import Rule, Plan_type, match_rule
+from elson.utils.cleansing_utils import Origin_Rule, load_yaml_rules, Queue, entire_exist
 from dataclasses import dataclass
 
 
 # load yaml obj as a Rule obj
-def load_rule(rule_detail: OriginRule) -> Rule:
+def load_rule(rule_detail: Origin_Rule) -> Rule:
     """
 
     :param rule_detail: base rule in yaml (not nested)
@@ -37,7 +37,7 @@ def parse_rules(origin_rules: object, *match_rules: str) -> Queue:
                 extract_rule(r)
         else:
             # if get a class , must be clean operation
-            if attr.__class__.__name__ == OriginRule.__name__:
+            if attr.__class__.__name__ == Origin_Rule.__name__:
                 rule_queue.append(attr)
             else:
                 extract_rule(attr)
@@ -74,10 +74,10 @@ class Execution:
 
 class Cleansing:
     def __init__(self,
-                 df: DataFrame,
-                 yaml_path: str):
+                 df: DataFrame = None,
+                 yaml_path: str = None):
         self.df: DataFrame = df
-        self.origin_rules: OriginRule = load_yaml_rules(yaml_path)
+        self.origin_rules: Origin_Rule = load_yaml_rules(yaml_path)
         self.execution_plan: Queue = Queue()
         self.rule_step: Queue = Queue()
         self.column_step: Queue = Queue()
@@ -112,13 +112,13 @@ class Cleansing:
             # plan quene , for each 'add_column' step
             rule_sorted = parse_rules(self.origin_rules, *rule)
             while True:
-                tmp_plan: OriginRule = rule_sorted.shift
+                tmp_plan: Origin_Rule = rule_sorted.shift
                 if not tmp_plan:
                     break
                 # make sure rules has data_type attribute
                 if not hasattr(tmp_plan, 'data_type'):
                     raise Exception(f"Missed 'data_type' from {tmp_plan}")
-                rule:Rule = load_rule(tmp_plan)
+                rule: Rule = load_rule(tmp_plan)
                 self.execution_plan.append(Execution(rule, column))
         print("total executions:", self.execution_plan.size)
 
@@ -143,7 +143,7 @@ class Cleansing:
 #         data: int
 
 #     rate_df: DataFrame = DataFrame(0)
-#     cleansing = Cleansing(rate_df, r"C:\Users\elson.sc.yan\Desktop\stretch_goal\src\elson\data_clean\rules.yaml")
+#     cleansing = Cleansing(rate_df, r"C:\Users\elson.sc.yan\Desktop\stretch_goal\src\elson\data_clean\test_rules.yaml")
 #     cleansing.add_rule("Rule3").add_rule("BaseRule2") \
 #         .add_column("col1").add_column("col2") \
 #         .exec()

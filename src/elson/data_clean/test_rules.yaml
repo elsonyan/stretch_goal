@@ -6,6 +6,8 @@ BaseRule3:
   data_type: rate
 BaseRule4:
   data_type: string
+BaseRule5:
+  data_type: string
 Rule1:
   - BaseRule1
   - BaseRule2

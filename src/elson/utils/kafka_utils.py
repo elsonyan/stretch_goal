@@ -6,20 +6,27 @@
 
 from kafka import KafkaProducer, KafkaConsumer
 from kafka.errors import KafkaError
+from elson.utils.exceptions import ProducerError
+from dataclasses import dataclass
 
-from elson.utils.config_helper import get_env
-from elson.utils.exceptions import ProducerError, ConsumerError
 
-kafkaConfig = get_env().kafkaConfig
+@dataclass
+class KafkaConfig:
+    bootstrap_servers: str
+    group_id: str
+    source_topic: str
+    target_topic: str
+
 
 class Producer:
-    def __init__(self):
-        self.producer = KafkaProducer(bootstrap_servers=kafkaConfig.bootstrap_servers,
+    def __init__(self, kafka_config: KafkaConfig):
+        self.kafka_config = kafka_config
+        self.producer = KafkaProducer(bootstrap_servers=self.kafka_config.bootstrap_servers,
                                       retries=5,
                                       acks='all')
 
     def run(self, message: str = None):
-        future = self.producer.send(kafkaConfig.target_topic, message.encode('utf-8'))
+        future = self.producer.send(self.kafka_config.target_topic, message.encode('utf-8'))
         try:
             future.get(timeout=10)
         except KafkaError as e:
@@ -32,10 +39,11 @@ class Producer:
 
 
 class Consumer:
-    def __init__(self):
-        self.consumer = KafkaConsumer(kafkaConfig.source_topic,
-                                      bootstrap_servers=kafkaConfig.bootstrap_servers,
-                                      group_id=kafkaConfig.group_id,
+    def __init__(self, kafka_config: KafkaConfig):
+        self.kafka_config = kafka_config
+        self.consumer = KafkaConsumer(self.kafka_config.source_topic,
+                                      bootstrap_servers=self.kafka_config.bootstrap_servers,
+                                      group_id=self.kafka_config.group_id,
                                       auto_offset_reset='latest',  # 'latest/earliest'
                                       enable_auto_commit=False
                                       )

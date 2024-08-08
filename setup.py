@@ -9,7 +9,7 @@ setup(
     name='elson',
     version='0.0.1',
     author="elson Yan",
-    author_email="yansc_1996@163.com",
+    author_email="elson.sc.yan@hkjc.org.hk",
     description="A sample python application",
     packages=find_packages('src'),
     package_dir={'': 'src'},
