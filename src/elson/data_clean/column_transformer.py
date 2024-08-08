@@ -28,7 +28,7 @@ def parse_rules(origin_rules: object, *match_rules: str) -> Queue:
     """
     rule_queue = Queue()
 
-    # 按 先后顺序，将rule排列在队列中。实现优先级
+    # Prioritization
     def extract_rule(_rule):
         # get rules by
         attr = getattr(origin_rules, _rule)
