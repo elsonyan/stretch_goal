@@ -4,8 +4,11 @@ BaseRule1:
 BaseRule2:
   data_type: rate
   operation: null_2_str
+BaseRule3:
+  data_type: rate
+  operation: upper
 Rule1:
   - BaseRule1
-  - BaseRule2
+  - BaseRule3
 Rule2:
-  - Rule1
+  - BaseRule2
