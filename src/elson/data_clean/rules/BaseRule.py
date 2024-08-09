@@ -49,6 +49,9 @@ class Rate_Rule(Rule):
     def convert_str_2_null(self, col) -> C.Column:
         return F.when("" == F.trim(F.col(col)), None).otherwise(F.col(col))
 
+    def upper_str(self, col) -> C.Column:
+        return F.upper(col)
+
     def exec(self, df: DataFrame, origin_rule: Origin_Rule, col: str) -> DataFrame:
         if not getattr(origin_rule, "operation"):
             raise Exception(f"no operation in {origin_rule}")
@@ -57,4 +60,6 @@ class Rate_Rule(Rule):
             expr = self.convert_str_2_null(col)
         elif getattr(origin_rule, "operation") == "null_2_str":
             expr = self.convert_null_2_str(col)
+        elif getattr(origin_rule, "operation") == "upper":
+            expr = self.upper_str(col)
         return df.withColumn(col, expr)
