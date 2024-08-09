@@ -55,10 +55,11 @@ class Execution:
     """
     rule: Rule = None
     columns: tuple = None
+    origin_rule: Origin_Rule = None
 
     def exec(self, df: DataFrame) -> DataFrame:
-        def transform(_df: DataFrame, _rule: Rule, _col: str) -> DataFrame:
-            return _rule.exec(_df, _col)
+        def transform(_df: DataFrame, _rule: Origin_Rule, _col: str) -> DataFrame:
+            return self.rule.exec(_df, _rule, _col)
 
         # make sure all columns exists in Dataframe
         col_list = [c[0] for c in df.dtypes if c[1].lower() == getattr(self.rule, "data_type").lower()]
@@ -66,7 +67,7 @@ class Execution:
             col_list = list(self.columns)
         if entire_exist(col_list, list(self.columns)):
             for _col in col_list:
-                df = transform(df, self.rule, _col)
+                df = transform(df, self.origin_rule, _col)
             return df
         else:
             raise Exception("col not matched in DataFrame")
@@ -109,7 +110,7 @@ class Cleansing:
         for _ in range(size):
             rule = self.rule_step.shift
             column = self.column_step.shift
-            # plan quene , for each 'add_column' step
+            # plan queue , for each 'add_column' step
             rule_sorted = parse_rules(self.origin_rules, *rule)
             while True:
                 tmp_plan: Origin_Rule = rule_sorted.shift
@@ -119,7 +120,7 @@ class Cleansing:
                 if not hasattr(tmp_plan, 'data_type'):
                     raise Exception(f"Missed 'data_type' from {tmp_plan}")
                 rule: Rule = load_rule(tmp_plan)
-                self.execution_plan.append(Execution(rule, column))
+                self.execution_plan.append(Execution(rule, column,tmp_plan))
         print("total executions:", self.execution_plan.size)
 
     def show_execution_plan(self):
