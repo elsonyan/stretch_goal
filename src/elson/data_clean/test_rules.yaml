@@ -1,20 +1,11 @@
 BaseRule1:
   data_type: rate
+  operation: str_2_null
 BaseRule2:
   data_type: rate
-BaseRule3:
-  data_type: rate
-BaseRule4:
-  data_type: string
-BaseRule5:
-  data_type: string
+  operation: null_2_str
 Rule1:
   - BaseRule1
   - BaseRule2
 Rule2:
-  - Rule1
-  - BaseRule3
-Rule3:
-  - Rule2
-  - BaseRule4
   - Rule1

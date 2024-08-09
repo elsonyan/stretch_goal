@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from pyspark.sql import DataFrame, functions as F
+from pyspark.sql import column as C
 from enum import Enum
 
 from elson.utils.cleansing_utils import Origin_Rule
@@ -42,5 +43,18 @@ class Rule(ABC):
 
 class Rate_Rule(Rule):
 
+    def convert_null_2_str(self, col) -> C.Column:
+        return F.when(F.col(col).isNull(), "").otherwise(F.col(col))
+
+    def convert_str_2_null(self, col) -> C.Column:
+        return F.when("" == F.trim(F.col(col)), None).otherwise(F.col(col))
+
     def exec(self, df: DataFrame, origin_rule: Origin_Rule, col: str) -> DataFrame:
-        return df.withColumn(col, F.concat(F.col(col).cast("string"), F.lit(self.name)))
+        if not getattr(origin_rule, "operation"):
+            raise Exception(f"no operation in {origin_rule}")
+        global expr
+        if getattr(origin_rule, "operation") == "str_2_null":
+            expr = self.convert_str_2_null(col)
+        elif getattr(origin_rule, "operation") == "null_2_str":
+            expr = self.convert_null_2_str(col)
+        return df.withColumn(col, expr)
